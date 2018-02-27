@@ -15,7 +15,6 @@ ctx.beginPath();
 ctx.arc(0, 0, radius, 0, Math.PI);
 ctx.stroke();
 
-
 let pointsInsideCircle = 0;
 let totalPoints = 0;
 
@@ -24,8 +23,7 @@ let maxRange = 1 + Number.EPSILON;
 let outsidePointsQueue = [];
 let insidePointsQueue = [];
 let maxNumberOfPoints = 400;
-let pointSize = 3;
-
+let pointSize = 4;
 
 function computePoint() {
 	let randomX = Math.random() * maxRange;
@@ -74,8 +72,20 @@ function refreshCircle() {
 	ctx.stroke();
 }
 
-setInterval(computePoint, 30);
-setInterval(refreshCircle, 100000);
+let play = false;
+let intervalIDCompute;
+let intervalIDRefresh;
 
-
-let startButon = document.getElementById('startButton');
+let startButton = document.getElementById('startButton');
+startButton.addEventListener('click', () => {
+	if(!play) {
+		intervalIDCompute = setInterval(computePoint, 30);
+		intervalIDRefresh = setInterval(refreshCircle, 50000);
+		startButton.innerHTML = 'Pause Simulation';
+	} else {
+		clearInterval(intervalIDCompute);
+		clearInterval(intervalIDRefresh);
+		startButton.innerHTML = 'Start Simulation';
+	}
+	play = !play;
+});
