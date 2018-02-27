@@ -1,74 +1,81 @@
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
-let inside = document.getElementById('insidePoints');
-let total = document.getElementById('totalPoints');
+let insidePointsCounted = document.getElementById('insidePoints');
+let totalPointsCounted = document.getElementById('totalPoints');
 let pi = document.getElementById('pi');
 
 let width = canvas.width;
 let height = canvas.height;
 
-let centerX = (width / 2);
-let centerY = (height / 2);
-let radius = (width <= height) ? centerX : centerY;
+let radius = (width <= height) ? width : height;
 
-//Draw Circle
+//Draw quarterCirle
 ctx.beginPath();
-ctx.arc(centerX, centerY, radius, 0, (2 * Math.PI));
+ctx.arc(0, 0, radius, 0, Math.PI);
 ctx.stroke();
 
-let min = (centerX - radius);
-let max = (centerX + radius);
-let range = (max - min);
-let radiusSquared = (radius * radius);
 
-let pointsOutsideCicle = 0;
 let pointsInsideCircle = 0;
 let totalPoints = 0;
+
+let maxRange = 1 + Number.EPSILON;
 
 let outsidePointsQueue = [];
 let insidePointsQueue = [];
 let maxNumberOfPoints = 400;
-let pointSize = 4;
+let pointSize = 3;
+
 
 function computePoint() {
-	let randomX = (Math.random() * range + min);
-	let randomY = (Math.random() * range + min);
-	let distanceSquared = Math.pow((centerX - randomX), 2) + Math.pow((centerY - randomY), 2);
+	let randomX = Math.random() * maxRange;
+	let randomY = Math.random() * maxRange;
+	let distanceSquared = Math.pow(randomX, 2) + Math.pow(randomY, 2);
 	
-	if(distanceSquared <= radiusSquared) {
+	let xPoint = (randomX * radius);
+	let yPoint = (randomY * radius);
+	
+	if(distanceSquared < 1) {
 		pointsInsideCircle++;
-		insidePointsQueue.push({x: randomX, y: randomY});
+		
+		insidePointsQueue.push({x: xPoint, y: yPoint});
 		
 		if(insidePointsQueue.length > maxNumberOfPoints) { 
 			let oldPoint = insidePointsQueue.shift();
-			ctx.clearRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
+			ctx.fillStyle = "#D5FED1";
+			ctx.fillRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
 		}
 		
-		ctx.fillStyle = "#3BE149";
+		ctx.fillStyle = "#17EA00";
 	} else {
-		pointsOutsideCicle++;
-		outsidePointsQueue.push({x: randomX, y: randomY});
+		outsidePointsQueue.push({x: xPoint, y: yPoint});
 		
 		if(outsidePointsQueue.length > maxNumberOfPoints) {
 			let oldPoint = outsidePointsQueue.shift();
-			ctx.clearRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
+			ctx.fillStyle = "#FEE1E1";
+			ctx.fillRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
 		}
 		
-		ctx.fillStyle = "red";
-		totalPoints++;
+		ctx.fillStyle = "#FF0000";
 	}
+	totalPoints++;
 	
-	ctx.fillRect(randomX, randomY, pointSize, pointSize);
-	console.log('pi = ' + (pointsInsideCircle / totalPoints));
+	ctx.fillRect(xPoint, yPoint, pointSize, pointSize);
+	
+	insidePointsCounted.innerHTML = 'Points Inside = ' + pointsInsideCircle;
+	totalPointsCounted.innerHTML = 'Total Points = ' + totalPoints;
+	pi.innerHTML = 'PI = ' + (4 * (pointsInsideCircle / totalPoints));
 }
 
-setInterval(computePoint, 300);
+function refreshCircle() {
+	ctx.fillStyle = "black";
+	ctx.beginPath();
+	ctx.arc(0, 0, radius, 0, Math.PI);
+	ctx.stroke();
+}
+
+setInterval(computePoint, 30);
+setInterval(refreshCircle, 100000);
 
 
 let startButon = document.getElementById('startButton');
-
-
-
-console.log('Hello, World!');
-
