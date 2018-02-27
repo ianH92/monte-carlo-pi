@@ -1,6 +1,10 @@
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
+let inside = document.getElementById('insidePoints');
+let total = document.getElementById('totalPoints');
+let pi = document.getElementById('pi');
+
 let width = canvas.width;
 let height = canvas.height;
 
@@ -20,6 +24,12 @@ let radiusSquared = (radius * radius);
 
 let pointsOutsideCicle = 0;
 let pointsInsideCircle = 0;
+let totalPoints = 0;
+
+let outsidePointsQueue = [];
+let insidePointsQueue = [];
+let maxNumberOfPoints = 400;
+let pointSize = 4;
 
 function computePoint() {
 	let randomX = (Math.random() * range + min);
@@ -28,19 +38,33 @@ function computePoint() {
 	
 	if(distanceSquared <= radiusSquared) {
 		pointsInsideCircle++;
-		console.log('Inside : ' + '(' + randomX + ', ' + randomY +')');
+		insidePointsQueue.push({x: randomX, y: randomY});
+		
+		if(insidePointsQueue.length > maxNumberOfPoints) { 
+			let oldPoint = insidePointsQueue.shift();
+			ctx.clearRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
+		}
+		
+		ctx.fillStyle = "#3BE149";
 	} else {
 		pointsOutsideCicle++;
-		console.log('Outside : ' + '(' + randomX + ', ' + randomY +')');
+		outsidePointsQueue.push({x: randomX, y: randomY});
+		
+		if(outsidePointsQueue.length > maxNumberOfPoints) {
+			let oldPoint = outsidePointsQueue.shift();
+			ctx.clearRect(oldPoint.x, oldPoint.y, pointSize, pointSize);
+		}
+		
+		ctx.fillStyle = "red";
+		totalPoints++;
 	}
+	
+	ctx.fillRect(randomX, randomY, pointSize, pointSize);
+	console.log('pi = ' + (pointsInsideCircle / totalPoints));
 }
 
-for(let i = 0; i < 100; i++) {
-	computePoint();
-}
+setInterval(computePoint, 300);
 
-console.log('number of outside points = ' + pointsOutsideCicle);
-console.log('number of inside points = ' + pointsInsideCircle);
 
 let startButon = document.getElementById('startButton');
 
